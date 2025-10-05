@@ -2,6 +2,33 @@ import requests
 import base64
 import time
 import json
+import os
+import get_tokens
+
+#tokens Programm abspielen
+print("\nPlease visit the following URL in your browser to authorize the application:")
+
+# Prüfen, ob die Datei tokens.json existiert
+if os.path.exists("tokens.json"):
+    try:
+        with open("tokens.json", "r") as f:
+            tokens = json.load(f)
+        print("Tokens erfolgreich geladen.")
+    except json.JSONDecodeError:
+        print("Fehler beim Laden der Tokens. Neue Tokens werden angefordert.")
+        tokens = None
+
+# Falls keine Tokens vorhanden sind -> neue erstellen
+while not tokens:
+    print("Keine gültigen Tokens vorhanden. Fordere neue Tokens an...")
+    tokens = get_tokens.getfreshtoken()
+
+    # Tokens in JSON-Datei speichern
+    with open("tokens.json", "w") as f:
+        json.dump(tokens, f, indent=4)
+    print("Tokens gespeichert:", tokens)
+
+
 
 # Deine Spotify-App-Daten
 client_id = "896914ef7b8247f6a6a34bb4be1eff98"
@@ -28,7 +55,7 @@ response_headers = {
 
 data = {
     "grant_type": "refresh_token",
-    "refresh_token": 'AQBgGo_Coo-0HaTnwH1hOBhTqxVl6tehqp6whT3DvlDgYC0W0EgLjLNx5tW5g1EoG7mdKofzgBtNylX6JOIB7Zb04WD_dliC0PplkY1psCYA_LQL0r783UAjWiXHOUJCpvU'
+  #  "refresh_token": 'AQAo8SfBk49-17O-FN6EfLA9BCdvpRmCAzMlAUrJCt_jeBVRhjlT6LhcJm7GiKqkxpGwUr_ZcFuttTcQf1Xfu37WFXeQ0PEFl1th5XbWop4HP7KncQkBauWgCoWPI2xQ12Q'
 }
 
 
