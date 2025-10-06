@@ -5,36 +5,30 @@ import json
 import os
 import get_tokens
 
-#tokens Programm abspielen
-print("\nPlease visit the following URL in your browser to authorize the application:")
 
 # Prüfen, ob die Datei tokens.json existiert
-if os.path.exists("tokens.json"):
-    try:
-        with open("tokens.json", "r") as f:
-            tokens = json.load(f)
-        print("Tokens erfolgreich geladen.")
-    except json.JSONDecodeError:
-        print("Fehler beim Laden der Tokens. Neue Tokens werden angefordert.")
-        tokens = None
-
-# Falls keine Tokens vorhanden sind -> neue erstellen
-while not tokens:
-    print("Keine gültigen Tokens vorhanden. Fordere neue Tokens an...")
+# Falls nicht -> neue erstellen und refresh-token (+ access-token) anfordern
+if not os.path.exists("tokens.json"):
+    
+    #tokens Programm abspielen
     tokens = get_tokens.getfreshtoken()
-
+    
     # Tokens in JSON-Datei speichern
     with open("tokens.json", "w") as f:
         json.dump(tokens, f, indent=4)
-    print("Tokens gespeichert:", tokens)
+    print("\nTokens erfolgreich geladen.")
 
+#Tokens aus der Datei laden
+with open("tokens.json", "r") as f:
+    tokens = json.load(f)
 
+refresh_token = tokens["refresh_token"]
+access_token = tokens["access_token"]
 
-# Deine Spotify-App-Daten
+# Spotify-App-Daten
 client_id = "896914ef7b8247f6a6a34bb4be1eff98"
 client_secret = "243d8606fa2f4da7a8e151798b1ce8bf"
 redirect_uri = "http://127.0.0.1:3000/callback"
-access_token = "A"
 
 
 token_url = "https://accounts.spotify.com/api/token" # Spotify Token-Endpoint
@@ -55,7 +49,7 @@ response_headers = {
 
 data = {
     "grant_type": "refresh_token",
-  #  "refresh_token": 'AQAo8SfBk49-17O-FN6EfLA9BCdvpRmCAzMlAUrJCt_jeBVRhjlT6LhcJm7GiKqkxpGwUr_ZcFuttTcQf1Xfu37WFXeQ0PEFl1th5XbWop4HP7KncQkBauWgCoWPI2xQ12Q'
+    "refresh_token": refresh_token
 }
 
 
