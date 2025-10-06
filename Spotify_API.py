@@ -56,36 +56,42 @@ data = {
 # --Main Loop--
 
 while True:
-
-    response = requests.get(url, headers=response_headers)
-
-    if response.status_code == 200:     #OK
-        response = response.json()
-        with open("response.json","w") as file:
-            json.dump(response, file)
-        
-        # Anzeige
-        print(f"Now playing: {response['item']['name']} on {response['device']['name']}")
-        progress_percent = int(response['progress_ms'] / response['item']['duration_ms'] * 100)
-        print(f"{progress_percent}%")
-
-    elif response.status_code == 401:
-        # Access Token mit Refresh Token aktualisieren
-        token_response = requests.post(token_url, headers={
-            "Authorization": f"Basic {auth_header}",
-            "Content-Type": "application/x-www-form-urlencoded"
-        }, data=data)
-        token_response = requests.post(token_url, headers=token_headers, data=data)
-        tokens = token_response.json()
-        access_token = tokens["access_token"]
-        print("Neues Access Token:", access_token)
-        response_headers["Authorization"] = f"Bearer {access_token}"
-
-    elif response.status_code == 204:
-        print("Kein aktives Gerät oder keine Wiedergabe.")
-        time.sleep(60)
     
-    else:
-        print("Fehler beim Refresh:", response.status_code, response.text)
+    try:
+        response = requests.get(url, headers=response_headers)
+
+        #OK
+        if response.status_code == 200:
+            response = response.json()
+            with open("response.json","w") as file:
+                json.dump(response, file)
+            
+            # Anzeige
+            print(f"Now playing: {response['item']['name']} on {response['device']['name']}")
+            progress_percent = int(response['progress_ms'] / response['item']['duration_ms'] * 100)
+            print(f"{progress_percent}%")
+
+        elif response.status_code == 401:
+            # Access Token mit Refresh Token aktualisieren
+            token_response = requests.post(token_url, headers={
+                "Authorization": f"Basic {auth_header}",
+                "Content-Type": "application/x-www-form-urlencoded"
+            }, data=data)
+            token_response = requests.post(token_url, headers=token_headers, data=data)
+            tokens = token_response.json()
+            access_token = tokens["access_token"]
+            print("Neues Access Token:", access_token)
+            response_headers["Authorization"] = f"Bearer {access_token}"
+
+        elif response.status_code == 204:
+            print("Kein aktives Gerät oder keine Wiedergabe.")
+            time.sleep(60)
+        
+        else:
+            print("Fehler beim Refresh:", response.status_code, response.text)
+        
+    
+    except requests.ConnectionError:
+        print("Internetverbindung prüfen")
     
     time.sleep(1)
