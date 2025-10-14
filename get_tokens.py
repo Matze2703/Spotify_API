@@ -13,7 +13,11 @@ def getfreshtoken():
     print("\nPlease visit the following URL in your browser to authorize the application:")
     print(code_url)
     code = input("\nAfter authorization, paste the 'code' parameter from the redirect URL: ")
-
+    try:
+        code = code[code.index("=")+1::]
+    except:
+        pass
+    print(code)
 
     auth_header = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
 
