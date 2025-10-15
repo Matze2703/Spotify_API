@@ -33,7 +33,6 @@ access_token = tokens["access_token"]
 client_id = "896914ef7b8247f6a6a34bb4be1eff98"
 client_secret = "243d8606fa2f4da7a8e151798b1ce8bf"
 redirect_uri = "http://127.0.0.1:3000/callback"
-
 token_url = "https://accounts.spotify.com/api/token" # Spotify Token-Endpoint
 url = "https://api.spotify.com/v1/me/player"         # Spotify Player
 
@@ -41,20 +40,19 @@ url = "https://api.spotify.com/v1/me/player"         # Spotify Player
 # ClientID + Secret Base64-kodieren
 auth_header = base64.b64encode(f"{client_id}:{client_secret}".encode()).decode()
 
+response_headers = {
+    "Authorization": f"Bearer {access_token}"
+}
+
 token_headers = {
     "Authorization": f"Basic {auth_header}",
     "Content-Type": "application/x-www-form-urlencoded"
 }
 
-response_headers = {
-    "Authorization": f"Bearer {access_token}"
-}
-
-data = {
+token_body = {
     "grant_type": "refresh_token",
     "refresh_token": refresh_token
 }
-
 
 
 
@@ -173,11 +171,7 @@ while running:
 
         elif response.status_code == 401:
             # Access Token mit Refresh Token aktualisieren
-            token_response = requests.post(token_url, headers={
-                "Authorization": f"Basic {auth_header}",
-                "Content-Type": "application/x-www-form-urlencoded"
-            }, data=data)
-            token_response = requests.post(token_url, headers=token_headers, data=data)
+            token_response = requests.post(token_url, headers=token_headers, data=token_body)
             tokens = token_response.json()
             access_token = tokens["access_token"]
             print("Neues Access Token:", access_token)
@@ -193,7 +187,7 @@ while running:
     except requests.ConnectionError:
         print("Internetverbindung prüfen")
 
-    time.sleep(1)
+    time.sleep(0.1)
 
     # -- GUI --
     screen.fill(dominant_color)
